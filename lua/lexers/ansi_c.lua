@@ -76,6 +76,7 @@ lex:set_word_list(lexer.KEYWORD, {
 })
 
 lex:set_word_list(lexer.TYPE, {
+  'u8', 'u16', 'u32', 'u64', 'i8', 'i16', 'i32', 'i64', -- lol
   'bool', 'char', 'double', 'float', 'int', 'long', 'short', 'signed', 'struct', 'union',
   'unsigned', 'void', --
   'complex', 'imaginary', '_Complex', '_Imaginary', -- complex.h C99
@@ -84,7 +85,7 @@ lex:set_word_list(lexer.TYPE, {
   'va_list', -- stdarg.h
   'bool', '_Bool', -- stdbool.h C99
   -- stddef.h.
-  'size_t', 'ptrdiff_t', --
+  'size_t', 'ssize_t', 'ptrdiff_t', --
   'max_align_t', -- C11
   -- stdint.h.
   'int8_t', 'int16_t', 'int32_t', 'int64_t', 'int_fast8_t', 'int_fast16_t', 'int_fast32_t',
@@ -198,7 +199,7 @@ lex:set_word_list(lexer.PREPROCESSOR, {
 })
 
 lex:set_word_list(lexer.ATTRIBUTE, { -- C23
-  'depreciated', 'fallthrough', 'maybe_unused',
+  'deprecated', 'fallthrough', 'maybe_unused',
   'nodiscard', 'noreturn', '_Noreturn', 'unsequenced', 'reproducible'
 })
 
