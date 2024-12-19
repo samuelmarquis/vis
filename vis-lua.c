@@ -1234,25 +1234,53 @@ static int exit_func(lua_State *L) {
  * @treturn string stdout the data written to stdout
  * @treturn string stderr the data written to stderr
  */
+/***
+ * Pipe a string to external process and collect output.
+ *
+ * The editor core will be blocked while the external process is running.
+ *
+ * @function pipe
+ * @tparam string text the text written to the external command
+ * @tparam string command the command to execute
+ * @tparam[opt] bool fullscreen whether command is a fullscreen program (e.g. curses based)
+ * @treturn int code the exit status of the executed command
+ * @treturn string stdout the data written to stdout
+ * @treturn string stderr the data written to stderr
+ */
 static int pipe_func(lua_State *L) {
 	Vis *vis = obj_ref_check(L, 1, "vis");
 	int cmd_idx = 4;
 	char *out = NULL, *err = NULL;
+	const char *text = NULL;
 	File *file = vis->win ? vis->win->file : NULL;
 	Filerange range = text_range_new(0, 0);
-	if (lua_gettop(L) <= 3) {
+	if (lua_gettop(L) == 2) { // vis:pipe(cmd)
 		cmd_idx = 2;
-	} else if (!(lua_isnil(L, 2) && lua_isnil(L, 3))) {
+	} else if (lua_gettop(L) == 3) {
+		if (lua_isboolean(L, 3)) { // vis:pipe(cmd, fullscreen)
+			cmd_idx = 2;
+		} else { // vis:pipe(text, cmd)
+			text = luaL_checkstring(L, 2);
+			cmd_idx = 3;
+		}
+	} else if (lua_isboolean(L, 4)) { // vis:pipe(text, cmd, fullscreen)
+		text = luaL_checkstring(L, 2);
+		cmd_idx = 3;
+	} else if (!(lua_isnil(L, 2) && lua_isnil(L, 3))) { // vis:pipe(file, range, cmd, [fullscreen])
 		file = obj_ref_check(L, 2, VIS_LUA_TYPE_FILE);
 		range = getrange(L, 3);
 	}
 	const char *cmd = luaL_checkstring(L, cmd_idx);
 	bool fullscreen = lua_isboolean(L, cmd_idx + 1) && lua_toboolean(L, cmd_idx + 1);
 
-	if (!file)
+	if (!text && !file)
 		return luaL_error(L, "vis:pipe(cmd = '%s'): win not open, file can't be nil", cmd);
 
-	int status = vis_pipe_collect(vis, file, &range, (const char*[]){ cmd, NULL }, &out, &err, fullscreen);
+	int status;
+	if (text)
+		status = vis_pipe_buf_collect(vis, text, (const char*[]){ cmd, NULL }, &out, &err, fullscreen);
+	else
+		status = vis_pipe_collect(vis, file, &range, (const char*[]){ cmd, NULL }, &out, &err, fullscreen);
 	lua_pushinteger(L, status);
 	if (out)
 		lua_pushstring(L, out);
@@ -1740,6 +1768,8 @@ static const struct luaL_Reg registers_funcs[] = {
  */
 /***
  * The file being displayed in this window.
+ * Changing the value to a file path will replace the current file with a new
+ * one for the specified path.
  * @tfield File file
  */
 /***
