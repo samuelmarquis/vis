@@ -306,6 +306,9 @@ vis.ftdetect.filetypes = {
 	nim = {
 		ext = { "%.nim$" },
 	},
+	nix = {
+		ext = { "%.nix$" },
+	},
 	nsis = {
 		ext = { "%.nsh$", "%.nsi$", "%.nsis$" },
 	},
