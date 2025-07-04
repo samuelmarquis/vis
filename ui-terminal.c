@@ -594,6 +594,7 @@ bool ui_window_init(Ui *tui, Win *w, enum UiOption options) {
 VIS_INTERNAL void
 ui_info_show(Ui *ui, const char *msg, va_list ap)
 {
+	ui->longinfo = false;
 	// NOTE(rnp): clear info line cells
 	VisCellData  cd    = {.data = {' '}, .data_length = 1, .width = 1};
 	VisCellStyle style = vis_cell_style_merge(ui->styles[UI_STYLE_DEFAULT], ui->styles[UI_STYLE_INFO]);
@@ -613,6 +614,19 @@ VIS_INTERNAL void
 vis_ui_info_hide(Ui *ui)
 {
 	ui->info_length = 0;
+}
+
+VIS_INTERNAL void
+ui_longinfo_show(Ui *ui, const char *msg, va_list ap)
+{
+	ui_info_show(ui, msg, ap);
+	ui->longinfo = true;
+}
+
+VIS_INTERNAL void
+ui_longinfo_hide(Ui *ui)
+{
+	ui->longinfo = false;
 }
 
 VIS_INTERNAL bool
