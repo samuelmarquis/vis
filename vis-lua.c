@@ -667,6 +667,34 @@ static int info(lua_State *L) {
 }
 
 /***
+ * Display a short message.
+ *
+ * The single line message will be displayed at the bottom of
+ * the screen and automatically hidden once a key is pressed.
+ *
+ * @function longinfo
+ * @tparam string message the message to display
+ */
+static int longinfo(lua_State *L) {
+	Vis *vis = obj_ref_check(L, 1, "vis");
+	const char *msg = luaL_checkstring(L, 2);
+	vis_longinfo_show(vis, "%s", msg);
+	return 0;
+}
+
+/***
+ * Hide the currently-displayed short message.
+ *
+ * @function hide_longinfoinfo
+ */
+static int hide_longinfo(lua_State *L) {
+	Vis *vis = obj_ref_check(L, 1, "vis");
+	vis_longinfo_hide(vis);
+	return 0;
+}
+
+
+/***
  * Display a multi line message.
  *
  * Opens a new window and displays an arbitrarily long message.
@@ -1546,6 +1574,8 @@ static const struct luaL_Reg vis_lua[] = {
 	{ "register_names", register_names },
 	{ "command", command },
 	{ "info", info },
+	{ "longinfo", longinfo },
+	{ "hide_longinfo", hide_longinfo },
 	{ "message", message },
 	{ "map", map },
 	{ "unmap", unmap },

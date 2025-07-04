@@ -86,6 +86,7 @@ typedef struct {
 	struct Win *windows;      /* all windows managed by this ui */
 	struct Win *selwin;       /* the currently selected layout */
 	char info[UI_MAX_WIDTH];  /* info message displayed at the bottom of the screen */
+	bool longinfo;		  /* Info message that just won't quit! */
 	int width, height;        /* terminal dimensions available for all windows */
 	enum UiLayout layout;     /* whether windows are displayed horizontally or vertically */
 	TermKey *termkey;         /* libtermkey instance to handle keyboard input (stdin or /dev/tty) */
@@ -116,6 +117,8 @@ void ui_arrange(Ui*, enum UiLayout);
 void ui_draw(Ui*);
 void ui_info_hide(Ui *);
 void ui_info_show(Ui *, const char *, va_list);
+void ui_longinfo_hide(Ui *);
+void ui_longinfo_show( Ui *, const char *, va_list);
 void ui_redraw(Ui*);
 void ui_resize(Ui*);
 

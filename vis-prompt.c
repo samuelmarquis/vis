@@ -186,6 +186,17 @@ void vis_info_show(Vis *vis, const char *msg, ...) {
 	va_end(ap);
 }
 
+void vis_longinfo_show(Vis *vis, const char *msg, ...) {
+	va_list ap;
+	va_start(ap, msg);
+	ui_longinfo_show(&vis->ui, msg, ap);
+	va_end(ap);
+}
+
+void vis_longinfo_hide(Vis *vis) {
+	ui_longinfo_hide(&vis->ui);
+}
+
 void vis_message_show(Vis *vis, const char *msg) {
 	if (!msg)
 		return;

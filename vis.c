@@ -1190,7 +1190,8 @@ static const char *getkey(Vis *vis) {
 	TermKeyKey key = { 0 };
 	if (!ui_getkey(&vis->ui, &key))
 		return NULL;
-	ui_info_hide(&vis->ui);
+	if((vis->ui).longinfo == false)
+		ui_info_hide(&vis->ui);
 	bool use_keymap = vis->mode->id != VIS_MODE_INSERT &&
 	                  vis->mode->id != VIS_MODE_REPLACE &&
 	                  !vis->keymap_disabled;

@@ -480,6 +480,7 @@ bool ui_window_init(Ui *tui, Win *w, enum UiOption options) {
 	if (tui->windows)
 		tui->windows->prev = w->prev;
 	tui->windows = w;
+	tui->longinfo = false;
 
 	if (text_size(w->file->text) > UI_LARGE_FILE_SIZE) {
 		options |= UI_OPTION_LARGE_FILE;
@@ -492,6 +493,13 @@ bool ui_window_init(Ui *tui, Win *w, enum UiOption options) {
 }
 
 void ui_info_show(Ui *tui, const char *msg, va_list ap) {
+	tui->longinfo = false;
+	ui_draw_line(tui, 0, tui->height-1, ' ', UI_STYLE_INFO);
+	vsnprintf(tui->info, sizeof(tui->info), msg, ap);
+}
+
+void ui_longinfo_show(Ui *tui, const char *msg, va_list ap) {
+	tui->longinfo = true;
 	ui_draw_line(tui, 0, tui->height-1, ' ', UI_STYLE_INFO);
 	vsnprintf(tui->info, sizeof(tui->info), msg, ap);
 }
@@ -499,6 +507,10 @@ void ui_info_show(Ui *tui, const char *msg, va_list ap) {
 void ui_info_hide(Ui *tui) {
 	if (tui->info[0])
 		tui->info[0] = '\0';
+}
+
+void ui_longinfo_hide(Ui *tui) {
+	tui->longinfo=false;
 }
 
 static TermKey *ui_termkey_new(int fd) {

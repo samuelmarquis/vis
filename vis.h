@@ -204,6 +204,12 @@ void vis_prompt_show(Vis*, const char *title);
  */
 void vis_info_show(Vis*, const char *msg, ...) __attribute__((format(printf, 2, 3)));
 
+/** Display a message that will persist until cleared. */
+void vis_longinfo_show(Vis*, const char *msg, ...) __attribute__((format(printf, 2, 3)));
+
+/** Clear the aforementioned message. */
+void vis_longinfo_hide(Vis*);
+
 /** Display arbitrary long message in a dedicated window. */
 void vis_message_show(Vis*, const char *msg);
 /**
