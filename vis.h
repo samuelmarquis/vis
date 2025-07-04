@@ -303,6 +303,19 @@ VIS_EXPORT void vis_prompt_show(Vis *vis, const char *title);
 VIS_EXPORT void vis_info_show(Vis *vis, const char *msg, ...) __attribute__((format(printf, 2, 3)));
 
 /**
+ * Display a message in the info line which persists until explicitly cleared.
+ * @param vis The editor instance.
+ * @param msg A printf-style format string.
+ */
+VIS_EXPORT void vis_longinfo_show(Vis *vis, const char *msg, ...) __attribute__((format(printf, 2, 3)));
+
+/**
+ * Clear a message shown with vis_longinfo_show.
+ * @param vis The editor instance.
+ */
+VIS_EXPORT void vis_longinfo_hide(Vis *vis);
+
+/**
  * Display arbitrary long message in a dedicated window.
  * @param vis The editor instance.
  * @param msg The message to display.
