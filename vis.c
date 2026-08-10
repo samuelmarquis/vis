@@ -434,8 +434,11 @@ VIS_INTERNAL void
 vis_redraw(Vis *vis)
 {
 	ui_term_backend_clear(&vis->ui);
-	for (Win *win = vis->windows; win; win = win->next)
-		win->view.need_update = true;
+	/* re-render window content from the underlying text, not just the
+	 * decorations: files may have been modified behind the views' backs
+	 * (e.g. from Lua via file:insert), and need_update alone only causes
+	 * vis_window_draw to refresh decorations over stale cells */
+	vis_draw(vis);
 	ui_draw(vis);
 }
 
