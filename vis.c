@@ -425,6 +425,57 @@ void vis_window_prev(Vis *vis) {
 	vis_window_focus(vis, sel);
 }
 
+static void window_swap(Vis *vis, Win *a, Win *b) {
+	if (!a || !b || a == b)
+		return;
+	if (b->next == a) {
+		Win *tmp = a;
+		a = b;
+		b = tmp;
+	}
+	Win *a_prev = a->prev, *a_next = a->next;
+	Win *b_prev = b->prev, *b_next = b->next;
+	if (a_next == b) {
+		a->prev = b;
+		a->next = b_next;
+		b->prev = a_prev;
+		b->next = a;
+		if (a_prev) a_prev->next = b;
+		if (b_next) b_next->prev = a;
+	} else {
+		a->prev = b_prev;
+		a->next = b_next;
+		b->prev = a_prev;
+		b->next = a_next;
+		if (a_prev) a_prev->next = b;
+		if (a_next) a_next->prev = b;
+		if (b_prev) b_prev->next = a;
+		if (b_next) b_next->prev = a;
+	}
+	if (vis->windows == a)
+		vis->windows = b;
+	else if (vis->windows == b)
+		vis->windows = a;
+	ui_draw(vis);
+}
+
+void vis_window_swap_next(Vis *vis) {
+	Win *sel = vis->win;
+	if (!sel)
+		return;
+	window_swap(vis, sel, sel->next ? sel->next : vis->windows);
+}
+
+void vis_window_swap_prev(Vis *vis) {
+	Win *sel = vis->win;
+	if (!sel)
+		return;
+	Win *other = sel->prev;
+	if (!other)
+		for (other = vis->windows; other->next; other = other->next);
+	window_swap(vis, other, sel);
+}
+
 void vis_draw(Vis *vis) {
 	for (Win *win = vis->windows; win; win = win->next)
 		view_draw(&win->view);

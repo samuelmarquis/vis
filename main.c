@@ -13,6 +13,8 @@ static Vis vis[1];
 	X(ka_call,                            REDRAW,                           .f = vis_redraw,                          "vis-redraw",                          "Redraw current editor content") \
 	X(ka_call,                            WINDOW_NEXT,                      .f = vis_window_next,                     "vis-window-next",                     "Focus next window") \
 	X(ka_call,                            WINDOW_PREV,                      .f = vis_window_prev,                     "vis-window-prev",                     "Focus previous window") \
+	X(ka_call,                            WINDOW_SWAP_NEXT,                 .f = vis_window_swap_next,                "vis-window-swap-next",                "Swap current window with the next window") \
+	X(ka_call,                            WINDOW_SWAP_PREV,                 .f = vis_window_swap_prev,                "vis-window-swap-prev",                "Swap current window with the previous window") \
 	X(ka_count,                           COUNT,                            0,                                        "vis-count",                           "Count specifier") \
 	X(ka_delete,                          DELETE_CHAR_NEXT,                 .i = VIS_MOVE_CHAR_NEXT,                  "vis-delete-char-next",                "Delete the next character") \
 	X(ka_delete,                          DELETE_CHAR_PREV,                 .i = VIS_MOVE_CHAR_PREV,                  "vis-delete-char-prev",                "Delete the previous character") \
