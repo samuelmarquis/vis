@@ -185,6 +185,8 @@ local fnames = {
 	tsx = "typescript",
 	txt = "text",
 	typ = "typst",
+	-- scintillua's detect table says verilog; around here we prove things
+	v = "rocq",
 	typst = "typst",
 	usfm = "usfm",
 	wiki = "mediawiki",
