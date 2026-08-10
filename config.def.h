@@ -196,6 +196,8 @@ static const KeyBinding bindings_normal[] = {
 	{ "<C-w>n",             ALIAS("<vis-prompt-show>open<Enter>")       },
 	{ "<C-w>s",             ALIAS("<vis-prompt-show>split<Enter>")      },
 	{ "<C-w>v",             ALIAS("<vis-prompt-show>vsplit<Enter>")     },
+	{ "<C-w>x",             ACTION(WINDOW_SWAP_NEXT)                    },
+	{ "<C-w>X",             ACTION(WINDOW_SWAP_PREV)                    },
 	{ "<C-y>",              ACTION(WINDOW_SLIDE_DOWN)                   },
 	{ "D",                  ALIAS("d$")                                 },
 	{ "<Escape>",           ACTION(MODE_NORMAL_ESCAPE)                  },

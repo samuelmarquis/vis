@@ -261,6 +261,16 @@ VIS_EXPORT void vis_window_next(Vis*);
  */
 VIS_EXPORT void vis_window_prev(Vis*);
 /**
+ * Swap the position of the focused window with that of the next window.
+ * @param vis The editor instance.
+ */
+VIS_EXPORT void vis_window_swap_next(Vis*);
+/**
+ * Swap the position of the focused window with that of the previous window.
+ * @param vis The editor instance.
+ */
+VIS_EXPORT void vis_window_swap_prev(Vis*);
+/**
  * Change currently focused window, receiving user input.
  * @param win The window to focus.
  */
