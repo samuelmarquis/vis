@@ -157,6 +157,7 @@ end)
 -- default plugins
 
 require('plugins/filetype')
+require('plugins/leader')
 require('plugins/textobject-lexer')
 require('plugins/digraph')
 require('plugins/number-inc-dec')
