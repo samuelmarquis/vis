@@ -1319,6 +1319,19 @@ int vis_run(Vis *vis) {
 		}
 		vis_process_tick(vis, &fds);
 
+		/* A SIGINT may arrive after the interrupted check at the top of
+		 * the loop but before pselect(2) returns with the key bytes which
+		 * followed the ^C that generated it. Since the terminal runs with
+		 * ISIG enabled, the tty discards its input queue upon receipt of
+		 * the interrupt character, so any bytes readable now necessarily
+		 * postdate the interrupt. Sequence the <C-c> before draining them;
+		 * otherwise the following keys are processed first and the late
+		 * <C-c> is left behind as a stuck mapping prefix. */
+		if (vis->interrupted) {
+			vis->interrupted = false;
+			vis_keys_push(vis, "<C-c>", 0, true);
+		}
+
 		if (!FD_ISSET(STDIN_FILENO, &fds)) {
 			if (vis->mode->idle)
 				vis->mode->idle(vis);
