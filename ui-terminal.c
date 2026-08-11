@@ -449,7 +449,8 @@ ui_arrange(Vis *vis, enum UiLayout layout)
 			ui_window_move(win, x, y);
 			x += w;
 			if (n) {
-				VisCellData  cd    = {.data = {'|'}, .data_length = 1, .width = 1};
+				/* U+2502 BOX DRAWINGS LIGHT VERTICAL */
+				VisCellData  cd    = {.data = {0xE2, 0x94, 0x82}, .data_length = 3, .width = 1};
 				VisCellStyle style = vis_cell_style_merge(tui->styles[UI_STYLE_DEFAULT], tui->styles[UI_STYLE_SEPARATOR]);
 
 				VisCellData  *cells  = tui->cell_buffer.cells;
