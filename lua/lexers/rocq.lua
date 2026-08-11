@@ -75,6 +75,8 @@ lex:set_word_list(lexer.KEYWORD, {
 	'Cumulative', 'NonCumulative', 'Primitive', 'Register', 'Inline',
 	'Extraction', 'Extract', 'Recursive', 'Separate', 'Language',
 	'Time', 'Timeout', 'Redirect', 'Reset', 'Back', 'BackTo', 'Quit', 'Drop',
+	-- ssreflect / mathcomp vernacular --
+	'Prenex', 'Implicits', 'Types', 'View', 'HB',
 })
 
 lex:set_word_list(lexer.TYPE, {
@@ -84,6 +86,13 @@ lex:set_word_list(lexer.TYPE, {
 	'nat', 'bool', 'option', 'list', 'unit', 'sum', 'prod', 'sig', 'sigT',
 	'sumbool', 'sumor', 'comparison', 'positive', 'N', 'Z', 'Q', 'R',
 	'string', 'ascii', 'byte', 'int', 'float', 'Empty_set',
+	-- ssreflect / mathcomp --
+	'seq', 'pred', 'rel', 'eqType', 'choiceType', 'countType', 'finType',
+	'subType', 'ordinal',
+	-- mathcomp order hierarchy --
+	'porderType', 'latticeType', 'bLatticeType', 'tbLatticeType',
+	'distrLatticeType', 'orderType', 'finPOrderType', 'finLatticeType',
+	'finDistrLatticeType', 'finOrderType',
 })
 
 lex:set_word_list(lexer.FUNCTION, {
@@ -111,12 +120,17 @@ lex:set_word_list(lexer.FUNCTION, {
 	'try', 'repeat', 'do', 'once', 'progress', 'first', 'solve', 'all',
 	'idtac', 'fail', 'gfail', 'guard', 'timeout', 'time', 'assert_fails',
 	'assert_succeeds', 'by', 'exactly_once', 'only',
+	-- ssreflect --
+	'have', 'suff', 'suffices', 'wlog', 'gen', 'congr', 'under', 'over',
+	'unlock', 'done', 'last',
 })
 
 lex:set_word_list(lexer.CONSTANT, {
 	'True', 'False', 'true', 'false', 'tt', 'I', 'O', 'S', 'None', 'Some',
 	'nil', 'cons', 'pair', 'inl', 'inr', 'eq_refl', 'or_introl', 'or_intror',
 	'conj', 'ex_intro', 'exist',
+	-- ssreflect --
+	'erefl', 'isT', 'Ordinal',
 })
 
 return lex
