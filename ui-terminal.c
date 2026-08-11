@@ -426,7 +426,8 @@ ui_arrange(Vis *vis, enum UiLayout layout)
 			x += w;
 			if (n) {
 				VisCell *cells = tui->cell_buffer.cells;
-				VisCell cell = {.data = {'|'}, .data_length = 1, .width = 1, .style = tui->styles[UI_STYLE_DEFAULT]};
+				/* U+2502 BOX DRAWINGS LIGHT VERTICAL */
+				VisCell cell = {.data = {0xE2, 0x94, 0x82}, .data_length = 3, .width = 1, .style = tui->styles[UI_STYLE_DEFAULT]};
 				vis_ui_window_style_set(tui, &cell, UI_STYLE_SEPARATOR);
 				for (int i = 0; i < max_height; i++, cells += tui->width)
 					cells[x] = cell;
