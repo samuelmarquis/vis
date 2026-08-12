@@ -17,6 +17,13 @@ lex:add_rule('comment', lex:tag(lexer.COMMENT, lexer.range('(*', '*)', false, fa
 -- Attributes, e.g. #[local], #[export, universes(polymorphic)].
 lex:add_rule('attribute', lex:tag(lexer.PREPROCESSOR, lexer.range('#[', ']')))
 
+-- Proof holes ("this should not stick around"): Admitted/Abort proofs and
+-- the admit/give_up tactics get their own 'admitted' tag. Styled via
+-- lexers.STYLE_ADMITTED — define it in a theme or plugin (lexer files run
+-- in a read-only environment and cannot set module styles themselves);
+-- vis-rocq installs a loud back:#ff0000,fore:#ffffff,bold default.
+lex:add_rule('admitted', lex:tag('admitted', lex:word_match('admitted')))
+
 -- Keywords: Gallina terms, proof delimiters and the vernacular.
 lex:add_rule('keyword', lex:tag(lexer.KEYWORD, lex:word_match(lexer.KEYWORD)))
 
@@ -45,13 +52,18 @@ lex:add_rule('operator', lex:tag(lexer.OPERATOR, uni_op + S('=<>+-*/^~:;,.!?@&|_
 
 lexer.property['scintillua.comment'] = '(*|*)'
 
+lex:set_word_list('admitted', {
+	'Admitted', 'Abort', 'Admit', -- vernacular (Admit as in Admit Obligations)
+	'admit', 'give_up',           -- tactics
+})
+
 lex:set_word_list(lexer.KEYWORD, {
 	-- Gallina --
 	'forall', 'exists', 'exists2', 'fun', 'fix', 'cofix', 'struct', 'match',
 	'with', 'end', 'if', 'then', 'else', 'let', 'in', 'as', 'return', 'where',
 	'at', 'measure', 'wf',
 	-- proof structure --
-	'Proof', 'Qed', 'Defined', 'Admitted', 'Abort', 'Save',
+	'Proof', 'Qed', 'Defined', 'Save',
 	-- vernacular --
 	'Theorem', 'Lemma', 'Fact', 'Remark', 'Corollary', 'Proposition',
 	'Property', 'Example', 'Goal', 'Definition', 'Fixpoint', 'CoFixpoint',
@@ -69,7 +81,7 @@ lex:set_word_list(lexer.KEYWORD, {
 	'Print', 'Check', 'Eval', 'Compute', 'Search', 'About', 'Locate', 'Show',
 	'Undo', 'Restart', 'Fail', 'Succeed', 'Guarded', 'Validate',
 	'Scheme', 'Derive', 'Combined', 'Equations', 'Function', 'Functional',
-	'Program', 'Obligation', 'Obligations', 'Next', 'Solve', 'Admit',
+	'Program', 'Obligation', 'Obligations', 'Next', 'Solve',
 	'Declare', 'Custom', 'Entry', 'Bind', 'Delimit', 'Open', 'Close', 'Scope',
 	'Universe', 'Universes', 'Constraint', 'Polymorphic', 'Monomorphic',
 	'Cumulative', 'NonCumulative', 'Primitive', 'Register', 'Inline',
@@ -114,7 +126,7 @@ lex:set_word_list(lexer.FUNCTION, {
 	'zify', 'ring', 'ring_simplify', 'field', 'field_simplify', 'fourier',
 	'tauto', 'intuition', 'firstorder', 'decide', 'equality', 'btauto',
 	'typeclasses', 'debug',
-	'shelve', 'unshelve', 'instantiate', 'admit', 'give_up', 'cycle', 'swap',
+	'shelve', 'unshelve', 'instantiate', 'cycle', 'swap',
 	'abstract', 'transparent_abstract',
 	-- tacticals --
 	'try', 'repeat', 'do', 'once', 'progress', 'first', 'solve', 'all',
