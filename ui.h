@@ -142,6 +142,10 @@ typedef struct {
 	s16  info_length;
 	bool longinfo;             /* info message that just won't quit! persists until cleared */
 
+	char title[256];           /* last terminal title emitted (OSC 0) */
+	u16  title_length;
+	bool title_pushed;         /* original title pushed onto the terminal's title stack */
+
 	// static_assert(U16_MAX <= UI_STYLE_MAX)
 	u16          style_count;  /* count of styles currently in use */
 	VisCellStyle styles[UI_STYLE_MAX];

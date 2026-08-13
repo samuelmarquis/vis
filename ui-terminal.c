@@ -447,6 +447,67 @@ ui_arrange(Vis *vis, enum UiLayout layout)
 	}
 }
 
+/* Terminal (tab) title: the focused file's basename via OSC 0. Both
+ * backends emit their output on stderr, and this runs right after a blit,
+ * so a raw write cannot tear a frame. The previous title is saved on the
+ * terminal's title stack (xterm CSI 22/23 t; terminals without the stack
+ * ignore those sequences and merely keep the last title on exit). */
+static void
+ui_title_write(str8 s)
+{
+	(void)!write(STDERR_FILENO, s.data, s.length);
+}
+
+VIS_INTERNAL void
+ui_title_update(Vis *vis)
+{
+	Ui *tui = &vis->ui;
+
+	str8 name = {0};
+	if (vis->win && vis->win->file && !vis->win->file->internal)
+		name = vis->win->file->name;
+	for (s64 i = name.length - 1; i >= 0; i--) {
+		if (name.data[i] == '/') {
+			name.data   += i + 1;
+			name.length -= i + 1;
+			break;
+		}
+	}
+	if (!name.length)
+		name = str8("vis");
+
+	char title[sizeof(tui->title)];
+	u16  length = 0;
+	for (s64 i = 0; i < name.length && length < sizeof(title); i++) {
+		u8 byte = name.data[i];
+		if (byte >= 0x20 && byte != 0x7f)
+			title[length++] = byte;
+	}
+
+	if (length == tui->title_length && memcmp(title, tui->title, length) == 0)
+		return;
+	memcpy(tui->title, title, length);
+	tui->title_length = length;
+
+	if (!tui->title_pushed) {
+		ui_title_write(str8("\x1b[22;0t"));
+		tui->title_pushed = true;
+	}
+	ui_title_write(str8("\x1b]0;"));
+	ui_title_write((str8){.data = (u8 *)title, .length = length});
+	ui_title_write(str8("\x07"));
+}
+
+static void
+ui_title_restore(Ui *tui)
+{
+	if (tui->title_pushed) {
+		ui_title_write(str8("\x1b[23;0t"));
+		tui->title_pushed = false;
+		tui->title_length = 0;
+	}
+}
+
 VIS_INTERNAL void
 ui_draw(Vis *vis)
 {
@@ -505,6 +566,7 @@ ui_draw(Vis *vis)
 
 	vis_event_emit(vis, VIS_EVENT_UI_DRAW);
 	ui_term_backend_blit(tui);
+	ui_title_update(vis);
 }
 
 void ui_resize(Ui *tui) {
@@ -621,6 +683,7 @@ vis_ui_termkey_reopen(Ui *ui, int fd, char *term)
 }
 
 void ui_terminal_suspend(Ui *tui) {
+	ui_title_restore(tui); /* re-pushed by the first draw after resume */
 	ui_term_backend_suspend(tui);
 	kill(0, SIGTSTP);
 }
@@ -662,6 +725,7 @@ void ui_terminal_restore(Ui *tui) {
 VIS_INTERNAL void
 ui_terminal_free(Ui *tui)
 {
+	ui_title_restore(tui);
 	vis_ui_backend_free(tui);
 	termkey_destroy(&tui->termkey);
 	if (tui->cell_buffer.size) munmap(tui->cell_buffer.cells, tui->cell_buffer.size);
