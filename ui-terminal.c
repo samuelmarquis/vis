@@ -673,8 +673,16 @@ VIS_INTERNAL bool
 vis_ui_termkey_reopen(Ui *ui, int fd, char *term)
 {
 	bool result = false;
-	int tty = open("/dev/tty", O_RDWR);
+	/* O_NONBLOCK: a blocking open("/dev/tty") can hang forever once the
+	 * controlling terminal is gone (a dropped SSH session leaves the pty
+	 * in a state where the open never returns), during which SIGTERM stays
+	 * blocked and `kill` appears to be ignored. Open without blocking, then
+	 * restore blocking reads for the mainloop's pselect-gated input. */
+	int tty = open("/dev/tty", O_RDWR | O_NONBLOCK);
 	if (tty != -1) {
+		int flags = fcntl(tty, F_GETFL);
+		if (flags != -1)
+			fcntl(tty, F_SETFL, flags & ~O_NONBLOCK);
 		if (tty == fd || dup2(tty, fd) != -1)
 			result = vis_ui_termkey_init(&ui->termkey, fd, term);
 		close(tty);
@@ -694,12 +702,22 @@ vis_ui_getkey(Vis *vis, TermKeyKey *key)
 	TermKeyResult ret = termkey_getkey(&vis->ui.termkey, key);
 
 	if (ret == TERMKEY_RES_EOF) {
+		/* stdin reached EOF. Expected when input was piped (`foo | vis -`):
+		 * reopen the controlling terminal to keep going interactively. But
+		 * if the terminal itself has died (SSH/pty hangup) the reopened
+		 * descriptor is immediately at EOF again, so the mainloop's pselect
+		 * reports it permanently readable and we would reopen every
+		 * iteration -- a CPU spin that also starves the (mostly blocked)
+		 * SIGTERM. A live reopen never re-EOFs without input in between, so
+		 * a second consecutive EOF means the terminal is gone: terminate. */
 		termkey_destroy(&vis->ui.termkey);
 		errno = 0;
-		if (!vis_ui_termkey_reopen(&vis->ui, STDIN_FILENO, (char *)vis->ui.term.data))
-			ui_die_msg(&vis->ui, "Failed to re-open stdin as /dev/tty: %s\n", errno != 0 ? strerror(errno) : "");
+		if (!vis_ui_termkey_reopen(&vis->ui, STDIN_FILENO, (char *)vis->ui.term.data) ||
+		    ++vis->ui.term_eof_reopens >= 2)
+			vis->terminate = true;
 		return false;
 	}
+	vis->ui.term_eof_reopens = 0;
 
 	if (ret == TERMKEY_RES_AGAIN) {
 		struct pollfd fd;

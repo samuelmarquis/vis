@@ -146,6 +146,9 @@ typedef struct {
 	u16  title_length;
 	bool title_pushed;         /* original title pushed onto the terminal's title stack */
 
+	u8   term_eof_reopens;     /* consecutive EOF-triggered /dev/tty reopens; a dead
+	                              terminal (SSH/pty hangup) reopens every iteration */
+
 	// static_assert(U16_MAX <= UI_STYLE_MAX)
 	u16          style_count;  /* count of styles currently in use */
 	VisCellStyle styles[UI_STYLE_MAX];
