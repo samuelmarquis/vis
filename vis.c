@@ -1378,6 +1378,15 @@ int vis_run(Vis *vis) {
 
 		ui_draw(vis);
 		idle.tv_sec = vis->mode->idle_timeout;
+		/* SIGTERM/SIGHUP are blocked everywhere except across this
+		 * pselect. On macOS (XNU), when an fd is already ready pselect
+		 * returns at once and restores the blocked mask without
+		 * delivering pending signals. So if the loop ever spins on a
+		 * permanently readable fd (e.g. a dead terminal; see the EIO
+		 * check below), SIGTERM/SIGHUP stay pending forever and only
+		 * `kill -9` works.
+		 * If that recurs, check sigpending() for SIGTERM/SIGHUP at the
+		 * top of the loop and set vis->terminate. */
 		int r = pselect(vis_process_before_tick(&fds) + 1, &fds, NULL, NULL,
 		                timeout, &emptyset);
 		if (r == -1 && errno == EINTR)
@@ -1409,7 +1418,17 @@ int vis_run(Vis *vis) {
 			continue;
 		}
 
-		termkey_advisereadable(&vis->ui.termkey);
+		/* A hung-up terminal usually reads as EOF, which vis_ui_getkey
+		 * handles. But when the pty is revoke(2)d (as sshd/login do on
+		 * macOS and the BSDs when a session drops) reads fail with EIO
+		 * instead, termkey never sees EOF, and pselect keeps reporting
+		 * stdin readable: a hot CPU spin. No input can ever arrive again
+		 * (the same holds for EIO from an orphaned background pgrp), so
+		 * treat it as a hangup. */
+		if (termkey_advisereadable(&vis->ui.termkey) == TERMKEY_RES_ERROR && errno == EIO) {
+			vis->terminate = true;
+			continue;
+		}
 		const char *key;
 
 		while ((key = getkey(vis)))
